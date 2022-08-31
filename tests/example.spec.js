@@ -15,7 +15,7 @@ test('check most stars from forks', async ({ page }) => {
   const total = await allForks.count();
   console.log('allForks - ' + total);
   
-  for (let i = 1; i < total; ++i) {
+  for (let i = 2; i < total; ++i) {
     
     const rows = await page.locator(selector);
     console.log('fork - ' + i);
