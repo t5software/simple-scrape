@@ -1,28 +1,31 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const fs = require('fs');
 
-test('check quick price', async ({ page }) => {
-  await page.goto('https://coinmarketcap.com/currencies/quickswap/');
+test('check most stars from forks', async ({ page }) => {
+  await page.goto('https://github.com/NomicFoundation/hardhat-boilerplate/network/members');
   
+  const selector = '.repo > a:last-child';
   let result = {};
+  result.max = '0';
   
-  result.time = Date.now();
-  console.log("time - " + result.time);
+  result.startTime = Date.now();
+  console.log('startTime - ' + result.startTime);
   
-  let tempPrice = await page.locator('.priceValue > span').innerText();
-  console.log("price - " + tempPrice);
-  result.price = Number(tempPrice.substring(1));
-  console.log(result.price);
+  const allForks = (await page.locator(selector)).count();
+  console.log('allForks - ' + allForks);
   
-  result.symbol = await page.locator('small.nameSymbol').innerText();
-  console.log("symbol - " + result.symbol);
-  
-  const filename = `${result.symbol}-${result.time}-${result.price}.txt`;
-  
-  fs.writeFile(filename, JSON.stringify(result), err => {
-    if(err) {
-      console.error(err);
+  for (let i = 1; i < allForks; ++i) {
+    rows = await page.locator(selector);
+    console.log('fork - ' + i);
+    await rows.nth(i).click();
+    let stars = await page.locator('#repo-stars-counter-star').innerText();
+    if(stars > result.max) {
+      result.max = stars;
+      result.winner = page.url();
+      console.log('new max - ' + JSON.stringify(result));
     }
-  });
+    
+    console.log('winner - ' + JSON.stringify(result, null, 2));
+  }
+
 });
